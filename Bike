@@ -1,6 +1,6 @@
 local player = game.Players.LocalPlayer
 
--- Создание GUI
+
 local screenGui = Instance.new("ScreenGui")
 screenGui.Parent = player:WaitForChild("PlayerGui")
 
@@ -12,12 +12,11 @@ frame.BorderSizePixel = 0
 frame.AnchorPoint = Vector2.new(0.5, 0.5)
 frame.Parent = screenGui
 
--- Скругление углов
+
 local corner = Instance.new("UICorner")
 corner.CornerRadius = UDim.new(0, 15)
 corner.Parent = frame
 
--- Переключатель
 local toggle = Instance.new("TextButton")
 toggle.Size = UDim2.new(0, 100, 0, 50)
 toggle.Position = UDim2.new(0.5, -50, 0.5, -25)
@@ -25,7 +24,7 @@ toggle.BackgroundColor3 = Color3.new(0.8, 0.2, 0.2)
 toggle.Text = "OFF"
 toggle.Parent = frame
 
--- Скругление углов для переключателя
+
 local toggleCorner = Instance.new("UICorner")
 toggleCorner.CornerRadius = UDim.new(0, 15)
 toggleCorner.Parent = toggle
@@ -52,7 +51,7 @@ end
 
 toggle.MouseButton1Click:Connect(toggleFunction)
 
--- Перетаскивание фрейма с анимацией
+
 local dragging = false
 local dragInput, mousePos, framePos
 local tweenService = game:GetService("TweenService")
