@@ -42,7 +42,7 @@ local function toggleFunction()
         toggle.BackgroundColor3 = Color3.new(0.2, 0.8, 0.2)
         while isOn do
             moveToPosition()
-            wait(5)
+            wait(6)
         end
     else
         toggle.Text = "OFF"
