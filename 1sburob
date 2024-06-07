@@ -1,0 +1,91 @@
+local player = game.Players.LocalPlayer
+
+-- Создание GUI
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = player:WaitForChild("PlayerGui")
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 200, 0, 100)
+frame.Position = UDim2.new(0.5, -100, 0.5, -50)
+frame.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+frame.BorderSizePixel = 0
+frame.AnchorPoint = Vector2.new(0.5, 0.5)
+frame.Parent = screenGui
+
+-- Скругление углов
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 15)
+corner.Parent = frame
+
+-- Переключатель
+local toggle = Instance.new("TextButton")
+toggle.Size = UDim2.new(0, 100, 0, 50)
+toggle.Position = UDim2.new(0.5, -50, 0.5, -25)
+toggle.BackgroundColor3 = Color3.new(0.8, 0.2, 0.2)
+toggle.Text = "OFF"
+toggle.Parent = frame
+
+-- Скругление углов для переключателя
+local toggleCorner = Instance.new("UICorner")
+toggleCorner.CornerRadius = UDim.new(0, 15)
+toggleCorner.Parent = toggle
+
+local isOn = false
+local function moveToPosition()
+    player.Character.HumanoidRootPart.CFrame = CFrame.new(13767, -2.32819319, 38884.7852, 0, 0, -1, -1, 0, 0, 0, 1, 0)
+end
+
+local function toggleFunction()
+    isOn = not isOn
+    if isOn then
+        toggle.Text = "ON"
+        toggle.BackgroundColor3 = Color3.new(0.2, 0.8, 0.2)
+        while isOn do
+            moveToPosition()
+            wait(3)
+        end
+    else
+        toggle.Text = "OFF"
+        toggle.BackgroundColor3 = Color3.new(0.8, 0.2, 0.2)
+    end
+end
+
+toggle.MouseButton1Click:Connect(toggleFunction)
+
+-- Перетаскивание фрейма с анимацией
+local dragging = false
+local dragInput, mousePos, framePos
+local tweenService = game:GetService("TweenService")
+
+local function update(input)
+    local delta = input.Position - mousePos
+    local goalPosition = UDim2.new(framePos.X.Scale, framePos.X.Offset + delta.X, framePos.Y.Scale, framePos.Y.Offset + delta.Y)
+    local tween = tweenService:Create(frame, TweenInfo.new(0.1, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {Position = goalPosition})
+    tween:Play()
+end
+
+frame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        mousePos = input.Position
+        framePos = frame.Position
+
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+frame.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement then
+        dragInput = input
+    end
+end)
+
+game:GetService("UserInputService").InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        update(input)
+    end
+end)
