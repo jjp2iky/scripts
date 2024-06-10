@@ -1,0 +1,157 @@
+local player = game.Players.LocalPlayer
+local starterGui = game:GetService("StarterGui")
+
+-- Создание GUI
+local function createGui()
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "CustomScreenGui"
+    screenGui.ResetOnSpawn = false
+    screenGui.Parent = player:WaitForChild("PlayerGui")
+
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0, 200, 0, 100)
+    frame.Position = UDim2.new(0.5, -100, 0.5, -50)
+    frame.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+    frame.BorderSizePixel = 0
+    frame.AnchorPoint = Vector2.new(0.5, 0.5)
+    frame.Parent = screenGui
+
+    -- Скругление углов
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 15)
+    corner.Parent = frame
+
+    -- Переключатель
+    local toggle = Instance.new("TextButton")
+    toggle.Size = UDim2.new(0, 100, 0, 50)
+    toggle.Position = UDim2.new(0.5, -50, 0.5, -25)
+    toggle.BackgroundColor3 = Color3.new(0.8, 0.2, 0.2)
+    toggle.Text = "OFF"
+    toggle.Parent = frame
+
+    -- Скругление углов для переключателя
+    local toggleCorner = Instance.new("UICorner")
+    toggleCorner.CornerRadius = UDim.new(0, 15)
+    toggleCorner.Parent = toggle
+
+    local isOn = false
+    local teleportationEnabled = true -- Переменная для контроля работы телепортаций
+
+    local initialPosition = CFrame.new(5.68027401, 2.99999928, -0.372036755, 0.02452299, -1.60012608e-08, 0.999699295, 5.91114002e-09, 1, 1.58610725e-08, -0.999699295, 5.52040147e-09, 0.02452299)
+    local finalPosition1 = CFrame.new(2.98918629, 1.02429461, 4.17027044, -0.999945402, -0.00190125895, 0.010272529, -4.03452027e-08, 0.983300865, 0.181987241, -0.0104469918, 0.181977302, -0.983247221)
+    local finalPosition2 = CFrame.new(0.74556756, 3, 512651.688, -0.999913335, 6.29257286e-08, 0.0131645128, 6.24138536e-08, 1, -3.92933863e-08, -0.0131645128, -3.84683325e-08, -0.999913335)
+
+    local targetNames = {
+        "148",
+        "149",
+        "150",
+        "151",
+        "152",
+        "End"
+    }
+
+    local function moveToParts()
+        -- Телепортация на начальную позицию
+        player.Character.HumanoidRootPart.CFrame = initialPosition
+        wait(0.15)
+
+        -- Телепортация на каждый целевой part в папке
+        local walls = game.Workspace.Race.Walls:GetChildren()
+        for _, part in ipairs(walls) do
+            if part:IsA("BasePart") and table.find(targetNames, part.Name) then
+                player.Character.HumanoidRootPart.CFrame = part.CFrame
+                wait(0.15)
+            end
+        end
+        
+        -- Телепортация на финальные позиции
+        player.Character.HumanoidRootPart.CFrame = finalPosition1
+        wait(0.15)
+        player.Character.HumanoidRootPart.CFrame = finalPosition2
+    end
+
+    local function toggleFunction()
+        isOn = not isOn
+        if isOn then
+            toggle.Text = "ON"
+            toggle.BackgroundColor3 = Color3.new(0.2, 0.8, 0.2)
+            while isOn and teleportationEnabled do
+                moveToParts()
+                wait(0.15)
+            end
+        else
+            toggle.Text = "OFF"
+            toggle.BackgroundColor3 = Color3.new(0.8, 0.2, 0.2)
+        end
+    end
+
+    toggle.MouseButton1Click:Connect(toggleFunction)
+
+    -- Перетаскивание фрейма с анимацией
+    local dragging = false
+    local dragInput, mousePos, framePos
+    local tweenService = game:GetService("TweenService")
+
+    local function update(input)
+        local delta = input.Position - mousePos
+        local goalPosition = UDim2.new(framePos.X.Scale, framePos.X.Offset + delta.X, framePos.Y.Scale, framePos.Y.Offset + delta.Y)
+        local tween = tweenService:Create(frame, TweenInfo.new(0.1, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {Position = goalPosition})
+        tween:Play()
+    end
+
+    frame.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            mousePos = input.Position
+            framePos = frame.Position
+
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+
+    frame.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement then
+            dragInput = input
+        end
+    end)
+
+    game:GetService("UserInputService").InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            update(input)
+        end
+    end)
+end
+
+-- Создание GUI при загрузке
+createGui()
+
+-- Создание GUI при возрождении персонажа
+player.CharacterAdded:Connect(function()
+    -- Убедимся, что GUI не дублируется
+    if not player.PlayerGui:FindFirstChild("CustomScreenGui") then
+        createGui()
+    end
+end)
+
+-- Для гарантии, что GUI не исчезнет, если персонаж был перезагружен
+player:WaitForChild("PlayerGui").ChildRemoved:Connect(function(child)
+    if child.Name == "CustomScreenGui" then
+        createGui()
+    end
+end)
+
+-- Обработчик для удаления GUI и остановки скрипта при нажатии клавиши "["
+game:GetService("UserInputService").InputBegan:Connect(function(input)
+    if input.KeyCode == Enum.KeyCode.LeftBracket then
+        local gui = player.PlayerGui:FindFirstChild("CustomScreenGui")
+        if gui then
+            gui:Destroy()
+        end
+        teleportationEnabled = false
+        script:Destroy()
+    end
+end)
