@@ -37,6 +37,14 @@ local Window = Library.CreateLib("iw1s Hub", "DarkTheme")
         loadstring(game:HttpGet('https://raw.githubusercontent.com/jjp2iky/scripts/main/Older'))()
     end)
 
+            -- OTHERS
+    local Main = Window:NewTab("Others")
+    local MainSection = Main:NewSection("Random places")
+    MainSection:NewButton("Motorcycle race", "Motorcycle race", function()
+        loadstring(game:HttpGet('https://raw.githubusercontent.com/jjp2iky/scripts/main/Motorcyclerace'))()
+    end)
+
+
     --LOCAL PLAYER
     local Player = Window:NewTab("Player")
     local PlayerSection = Player:NewSection("Player")
@@ -52,6 +60,5 @@ local Window = Library.CreateLib("iw1s Hub", "DarkTheme")
     PlayerSection:NewButton("Reset WS/JP", "Resets to all defaults", function()
         game.Players.LocalPlayer.Character.Humanoid.JumpPower = 50
         game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 16
+        
     end)
-
-
