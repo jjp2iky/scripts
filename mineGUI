@@ -1,0 +1,445 @@
+-- CHANGE KEYBINDS ON 190 LINE(CAMLOCK), 347 LINE(CHAMS), 408 LINE (FLY)
+--CHANGE CAMLOCK PREDICTION ON 189 LINE
+
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "CustomGui"
+screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+
+local mainFrame = Instance.new("Frame")
+mainFrame.Name = "MainFrame"
+mainFrame.Size = UDim2.new(0, 550, 0, 350)
+mainFrame.Position = UDim2.new(0.5, -450, 0.5, -225)
+mainFrame.BackgroundColor3 = Color3.fromHex("#212124")
+mainFrame.BorderSizePixel = 0
+mainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+mainFrame.Parent = screenGui
+
+local mainFrameUICorner = Instance.new("UICorner")
+mainFrameUICorner.CornerRadius = UDim.new(0, 12) 
+mainFrameUICorner.Parent = mainFrame
+
+
+local topBar = Instance.new("Frame")
+topBar.Name = "TopBar"
+topBar.Size = UDim2.new(1, 0, 0, 20)
+topBar.BackgroundColor3 = Color3.fromHex("#2A2A2C") 
+topBar.BorderSizePixel = 0
+topBar.Parent = mainFrame
+
+local topBarUICorner = Instance.new("UICorner")
+topBarUICorner.CornerRadius = UDim.new(0, 12)
+topBarUICorner.Parent = topBar
+
+
+local minimizeButton = Instance.new("TextButton")
+minimizeButton.Name = "MinimizeButton"
+minimizeButton.Size = UDim2.new(0, 20, 0, 20)
+minimizeButton.Position = UDim2.new(1, -25, 0, 0)
+minimizeButton.BackgroundColor3 = Color3.fromHex("#2A2A2C")
+minimizeButton.Text = "-"
+minimizeButton.TextColor3 = Color3.new(1, 1, 1)
+minimizeButton.BorderSizePixel = 0
+minimizeButton.Parent = topBar
+
+local minimizeButtonUICorner = Instance.new("UICorner")
+minimizeButtonUICorner.CornerRadius = UDim.new(0, 6)
+minimizeButtonUICorner.Parent = minimizeButton
+
+
+local sideMenu = Instance.new("Frame")
+sideMenu.Name = "SideMenu"
+sideMenu.Size = UDim2.new(0, 120, 1, 0) 
+sideMenu.BackgroundColor3 = Color3.fromHex("#1A1A1C")
+sideMenu.BorderSizePixel = 0
+sideMenu.Parent = mainFrame
+
+local sideMenuUICorner = Instance.new("UICorner")
+sideMenuUICorner.CornerRadius = UDim.new(0, 12) 
+sideMenuUICorner.Parent = sideMenu
+
+
+local toggleSideMenuButton = Instance.new("TextButton")
+toggleSideMenuButton.Name = "ToggleSideMenuButton"
+toggleSideMenuButton.Size = UDim2.new(0, 20, 0, 20)
+toggleSideMenuButton.Position = UDim2.new(0, 125, 0, 0)
+toggleSideMenuButton.BackgroundColor3 = Color3.fromHex("#2A2A2C")
+toggleSideMenuButton.Text = "≡"
+toggleSideMenuButton.TextColor3 = Color3.new(1, 1, 1)
+toggleSideMenuButton.BorderSizePixel = 0
+toggleSideMenuButton.Parent = topBar
+
+local toggleSideMenuButtonUICorner = Instance.new("UICorner")
+toggleSideMenuButtonUICorner.CornerRadius = UDim.new(0, 6)
+toggleSideMenuButtonUICorner.Parent = toggleSideMenuButton
+
+local buttons = {}
+local buttonNames = {"CamLock", "Chams", "CF Fly"} 
+for i, buttonName in ipairs(buttonNames) do
+    local button = Instance.new("TextButton")
+    button.Name = buttonName
+    button.Size = UDim2.new(0, 100, 0, 30) 
+    button.Position = UDim2.new(0, 130, 0, 30 + (i-1)*40) 
+    button.BackgroundColor3 = Color3.fromHex("#2A2A2C")
+    button.Text = buttonName
+    button.TextColor3 = Color3.new(1, 1, 1)
+    button.BorderSizePixel = 0
+    button.Parent = mainFrame
+
+    local buttonUICorner = Instance.new("UICorner")
+    buttonUICorner.CornerRadius = UDim.new(0, 6)
+    buttonUICorner.Parent = button
+
+    table.insert(buttons, button)
+end
+
+
+local dragging = false
+local dragInput
+local dragStart
+local startPos
+
+local function update(input)
+    local delta = input.Position - dragStart
+    local newPosition = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    game:GetService("TweenService"):Create(mainFrame, TweenInfo.new(0.1), {Position = newPosition}):Play()
+end
+
+topBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = mainFrame.Position
+        
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+topBar.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement then
+        dragInput = input
+    end
+end)
+
+game:GetService("UserInputService").InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        update(input)
+    end
+end)
+
+
+local minimized = false
+minimizeButton.MouseButton1Click:Connect(function()
+    if minimized then
+        game:GetService("TweenService"):Create(mainFrame, TweenInfo.new(0.2), {
+            Size = UDim2.new(0, 550, 0, 350),
+            Position = UDim2.new(0.5, -450, 0.5, -225)
+        }):Play()
+        for _, button in pairs(buttons) do
+            game:GetService("TweenService"):Create(button, TweenInfo.new(0.2), {BackgroundTransparency = 0, TextTransparency = 0}):Play()
+        end
+        minimized = false
+    else
+        for _, button in pairs(buttons) do
+            game:GetService("TweenService"):Create(button, TweenInfo.new(0.2), {BackgroundTransparency = 1, TextTransparency = 1}):Play()
+        end
+        game:GetService("TweenService"):Create(mainFrame, TweenInfo.new(0.2), {
+            Size = UDim2.new(0, 550, 0, 20),
+            Position = UDim2.new(0.5, -450, 0.5, -10)
+        }):Play()
+        minimized = true
+    end
+end)
+
+
+local sideMenuCollapsed = false
+toggleSideMenuButton.MouseButton1Click:Connect(function()
+    if sideMenuCollapsed then
+        game:GetService("TweenService"):Create(sideMenu, TweenInfo.new(0.2), {Size = UDim2.new(0, 120, 1, 0)}):Play()
+        game:GetService("TweenService"):Create(toggleSideMenuButton, TweenInfo.new(0.2), {Position = UDim2.new(0, 125, 0, 0)}):Play()
+        for i, button in pairs(buttons) do
+            game:GetService("TweenService"):Create(button, TweenInfo.new(0.2), {Position = UDim2.new(0, 130, 0, 30 + (i-1)*40)}):Play()
+        end
+        sideMenuCollapsed = false
+    else
+        game:GetService("TweenService"):Create(sideMenu, TweenInfo.new(0.2), {Size = UDim2.new(0, 10, 1, 0)}):Play()
+        game:GetService("TweenService"):Create(toggleSideMenuButton, TweenInfo.new(0.2), {Position = UDim2.new(0, 15, 0, 0)}):Play()
+        for i, button in pairs(buttons) do
+            game:GetService("TweenService"):Create(button, TweenInfo.new(0.2), {Position = UDim2.new(0, 20, 0, 30 + (i-1)*40)}):Play()
+        end
+        sideMenuCollapsed = true
+    end
+end)
+
+
+buttons[1].MouseButton1Click:Connect(function()
+
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
+
+local HIGHLIGHT_FILL_COLOR = Color3.fromRGB(0, 130, 156)
+local HIGHLIGHT_OUTLINE_COLOR = Color3.fromRGB(0, 170, 204)
+local PREDICTION = 0
+local TOGGLE_KEY = Enum.KeyCode.C
+
+local camera = workspace.CurrentCamera
+local localPlayer = Players.LocalPlayer
+local targetPlayer = nil
+local isCamLocked = false
+
+
+local function createHighlight(character)
+    local highlight = Instance.new("Highlight")
+    highlight.Adornee = character
+    highlight.FillColor = HIGHLIGHT_FILL_COLOR
+    highlight.OutlineColor = HIGHLIGHT_OUTLINE_COLOR
+    highlight.Parent = character
+    return highlight
+end
+
+
+local function getClosestPlayerToCursor()
+    local mouse = localPlayer:GetMouse()
+    local closestPlayer = nil
+    local closestDist = math.huge
+    
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= localPlayer and player.Character and player.Character:FindFirstChild("Head") then
+            local charPos = player.Character.Head.Position
+            local screenPoint = camera:WorldToViewportPoint(charPos)
+            local dist = (Vector2.new(screenPoint.X, screenPoint.Y) - Vector2.new(mouse.X, mouse.Y)).Magnitude
+            
+            if dist < closestDist then
+                closestDist = dist
+                closestPlayer = player
+            end
+        end
+    end
+    
+    return closestPlayer
+end
+
+
+local function updateCamera()
+    if isCamLocked and targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("Head") then
+        local targetPos = targetPlayer.Character.Head.Position
+        local predictedPos = targetPos + targetPlayer.Character.Head.Velocity * PREDICTION
+        camera.CFrame = CFrame.new(camera.CFrame.Position, predictedPos)
+    end
+end
+
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if not gameProcessed and input.KeyCode == TOGGLE_KEY then
+        if isCamLocked then
+            isCamLocked = false
+            if targetPlayer and targetPlayer.Character then
+                local highlight = targetPlayer.Character:FindFirstChildOfClass("Highlight")
+                if highlight then
+                    highlight:Destroy()
+                end
+            end
+            targetPlayer = nil
+        else
+            targetPlayer = getClosestPlayerToCursor()
+            if targetPlayer and targetPlayer.Character then
+                createHighlight(targetPlayer.Character)
+                isCamLocked = true
+            end
+        end
+    end
+end)
+
+RunService.RenderStepped:Connect(updateCamera)
+
+end)
+
+buttons[2].MouseButton1Click:Connect(function()
+    print("Chams button clicked")
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+
+local ChamsEnabled = false
+
+local function createHighlight(player)
+    if player.Character and player.Character:FindFirstChild("Head") then
+        local highlight = Instance.new("Highlight")
+        highlight.Name = "HighlightCham"
+        highlight.FillColor = Color3.fromRGB(0, 255, 0) 
+        highlight.FillTransparency = 0.7 
+        highlight.OutlineColor = Color3.fromRGB(0, 255, 0) 
+        highlight.OutlineTransparency = 0
+        highlight.Parent = player.Character
+    end
+end
+
+
+local function removeHighlight(player)
+    if player.Character then
+        local highlight = player.Character:FindFirstChild("HighlightCham")
+        if highlight then
+            highlight:Destroy()
+        end
+    end
+end
+
+
+local function createNameTag(player)
+    if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+        local head = player.Character:FindFirstChild("Head")
+        if head and not head:FindFirstChild("NameTag") then
+            local billboard = Instance.new("BillboardGui")
+            billboard.Name = "NameTag"
+            billboard.AlwaysOnTop = true
+            billboard.Size = UDim2.new(0, 100, 0, 50)
+            billboard.StudsOffset = Vector3.new(0, 3, 0)
+            billboard.Parent = head
+
+            local textLabel = Instance.new("TextLabel")
+            textLabel.Text = player.Name
+            textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+            textLabel.BackgroundTransparency = 1
+            textLabel.TextStrokeTransparency = 0
+            textLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+            textLabel.Size = UDim2.new(1, 0, 1, 0)
+            textLabel.Font = Enum.Font.SourceSans
+            textLabel.TextSize = 8 
+            textLabel.Parent = billboard
+        end
+    end
+end
+
+
+local function removeNameTag(player)
+    if player.Character and player.Character:FindFirstChild("Head") then
+        local head = player.Character:FindFirstChild("Head")
+        if head then
+            local nameTag = head:FindFirstChild("NameTag")
+            if nameTag then
+                nameTag:Destroy()
+            end
+        end
+    end
+end
+
+
+local function toggleChams()
+    ChamsEnabled = not ChamsEnabled
+    for _, player in pairs(Players:GetPlayers()) do
+        if ChamsEnabled then
+            createHighlight(player)
+            createNameTag(player)
+        else
+            removeHighlight(player)
+            removeNameTag(player)
+        end
+    end
+end
+
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if input.KeyCode == Enum.KeyCode.V and not gameProcessed then
+        toggleChams()
+    end
+end)
+
+
+Players.PlayerAdded:Connect(function(player)
+    player.CharacterAdded:Connect(function()
+        if ChamsEnabled then
+            createHighlight(player)
+            createNameTag(player)
+        end
+    end)
+end)
+
+Players.PlayerRemoving:Connect(function(player)
+    removeHighlight(player)
+    removeNameTag(player)
+end)
+end)
+
+buttons[3].MouseButton1Click:Connect(function()
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+local flying = false
+local speed = 50
+local uis = game:GetService("UserInputService")
+local runService = game:GetService("RunService")
+
+
+local function toggleFly()
+    flying = not flying
+    if flying then
+
+        local bodyVelocity = Instance.new("BodyVelocity")
+        bodyVelocity.Name = "FlightVelocity"
+        bodyVelocity.Velocity = Vector3.new(0, 0, 0)
+        bodyVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+        bodyVelocity.Parent = character.PrimaryPart
+
+
+        local bodyGyro = Instance.new("BodyGyro")
+        bodyGyro.Name = "FlightGyro"
+        bodyGyro.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
+        bodyGyro.P = 10000
+        bodyGyro.CFrame = character.PrimaryPart.CFrame
+        bodyGyro.Parent = character.PrimaryPart
+    else
+а
+        if character.PrimaryPart:FindFirstChild("FlightVelocity") then
+            character.PrimaryPart:FindFirstChild("FlightVelocity"):Destroy()
+        end
+        if character.PrimaryPart:FindFirstChild("FlightGyro") then
+            character.PrimaryPart:FindFirstChild("FlightGyro"):Destroy()
+        end
+    end
+end
+
+
+uis.InputBegan:Connect(function(input, processed)
+    if not processed and input.KeyCode == Enum.KeyCode.Z then
+        toggleFly()
+    end
+end)
+
+
+runService.RenderStepped:Connect(function()
+    if flying and character.PrimaryPart then
+        local camera = workspace.CurrentCamera
+        local moveDirection = Vector3.new()
+
+        if uis:IsKeyDown(Enum.KeyCode.W) then
+            moveDirection = moveDirection + camera.CFrame.LookVector
+        end
+        if uis:IsKeyDown(Enum.KeyCode.S) then
+            moveDirection = moveDirection - camera.CFrame.LookVector
+        end
+        if uis:IsKeyDown(Enum.KeyCode.A) then
+            moveDirection = moveDirection - camera.CFrame.RightVector
+        end
+        if uis:IsKeyDown(Enum.KeyCode.D) then
+            moveDirection = moveDirection + camera.CFrame.RightVector
+        end
+        if uis:IsKeyDown(Enum.KeyCode.Space) then
+            moveDirection = moveDirection + Vector3.new(0, 1, 0)
+        end
+        if uis:IsKeyDown(Enum.KeyCode.LeftShift) then
+            moveDirection = moveDirection - Vector3.new(0, 1, 0)
+        end
+
+        local bodyVelocity = character.PrimaryPart:FindFirstChild("FlightVelocity")
+        if bodyVelocity then
+            bodyVelocity.Velocity = moveDirection * speed
+        end
+    end
+end)	
+
+end)
