@@ -36,6 +36,10 @@ local function teleportPlayer()
 end
 
 local function createGui()
+    if game.Players.LocalPlayer:FindFirstChild("PlayerGui"):FindFirstChild("TeleportGui") then
+        return -- Prevent multiple instances of the GUI
+    end
+
     local ScreenGui = Instance.new("ScreenGui")
     local MenuFrame = Instance.new("Frame")
     local ToggleButtonFrame = Instance.new("Frame")
@@ -50,7 +54,6 @@ local function createGui()
     ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 
     ScreenGui.DisplayOrder = 1000 
-
 
     LoadingFrame.Size = UDim2.new(0, 150, 0, 50)
     LoadingFrame.Position = UDim2.new(0.5, -75, 0.5, 20)
@@ -81,7 +84,6 @@ local function createGui()
 
     wait(2.5)
     LoadingFrame:Destroy()
-
 
     MenuFrame.Size = UDim2.new(0, 200, 0, 120) -- Increased height to accommodate new button
     MenuFrame.Position = UDim2.new(0.5, -100, 0.5, -60) -- Slightly higher position
@@ -291,12 +293,10 @@ local function createGui()
         local progressTween = game:GetService("TweenService"):Create(progressBar, TweenInfo.new(1.5, Enum.EasingStyle.Linear), {Size = UDim2.new(0, 0, 0, 5)})
         progressTween:Play()
 
-
         message:TweenPosition(UDim2.new(1, -210, 1, -110), "Out", "Quad", 0.5, true)
         game:GetService("TweenService"):Create(message, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0.5, TextTransparency = 0.5}):Play()
 
         wait(1.5)
-
 
         game:GetService("TweenService"):Create(message, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 1, TextTransparency = 1}):Play()
         wait(0.5)
@@ -304,7 +304,6 @@ local function createGui()
     end
 
     local function removeGui()
-
         if teleporting then
             teleporting = false
             if teleportConnection then
@@ -336,7 +335,7 @@ local function createGui()
         game:GetService("TweenService"):Create(CollapseButton, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 1}):Play()
         wait(0.5)
         ScreenGui:Destroy()
-    end 
+    end
 
     UIS.InputBegan:Connect(function(input)
         if input.KeyCode == Enum.KeyCode.L then
