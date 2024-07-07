@@ -52,7 +52,7 @@ end
 
 local function createGui()
     if game.Players.LocalPlayer:WaitForChild("PlayerGui"):FindFirstChild("TeleportGui") then
-        return
+        return -- GUI already exists, so we return to avoid creating it again
     end
 
     local ScreenGui = Instance.new("ScreenGui")
@@ -99,7 +99,7 @@ local function createGui()
     LoadingBar.Parent = LoadingFrame
 
     local LoadingBarUICorner = Instance.new("UICorner")
-    LoadingBarUICorner.CornerRadius = UDim.new(0.5, 0) 
+    LoadingBarUICorner.CornerRadius = UDim.new(0.5, 0)  -- Fully rounded
     LoadingBarUICorner.Parent = LoadingBar
 
     local progressTween = game:GetService("TweenService"):Create(LoadingBar, TweenInfo.new(2.5, Enum.EasingStyle.Linear), {Size = UDim2.new(1, 0, 0, 5)})
@@ -310,9 +310,10 @@ local function createGui()
                     local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
                     if humanoidRootPart then
                         local initialPosition = humanoidRootPart.Position
-                        humanoidRootPart.CFrame = humanoidRootPart.CFrame * CFrame.new(0, 0.091, -0.082) 
+                        humanoidRootPart.CFrame = humanoidRootPart.CFrame * CFrame.new(0, 0.091, -0.082) -- Move back
                         wait(0.05)
-                        humanoidRootPart.CFrame = humanoidRootPart.CFrame * CFrame.new(0, 0, 0.082)
+                        humanoidRootPart.CFrame = humanoidRootPart.CFrame * CFrame.new(0, 0, 0.082) -- Move forward
+                    end
                 end
 
                 simulateMovement()
@@ -385,7 +386,7 @@ local function createGui()
         progressBar.Parent = message
 
         local progressBarUICorner = Instance.new("UICorner")
-        progressBarUICorner.CornerRadius = UDim.new(0.5, 0) 
+        progressBarUICorner.CornerRadius = UDim.new(0.5, 0)  -- Fully rounded
         progressBarUICorner.Parent = progressBar
 
         local progressTween = game:GetService("TweenService"):Create(progressBar, TweenInfo.new(1.5, Enum.EasingStyle.Linear), {Size = UDim2.new(0, 0, 0, 5)})
@@ -477,9 +478,9 @@ local function simulateMovement()
     local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
     if humanoidRootPart then
         local initialPosition = humanoidRootPart.Position
-        humanoidRootPart.CFrame = humanoidRootPart.CFrame * CFrame.new(0, 0, -0.3)  
+        humanoidRootPart.CFrame = humanoidRootPart.CFrame * CFrame.new(0, 0, -0.3)  -- Move back
         wait(3)
-        humanoidRootPart.CFrame = humanoidRootPart.CFrame * CFrame.new(0, 0, 0.3) 
+        humanoidRootPart.CFrame = humanoidRootPart.CFrame * CFrame.new(0, 0, 0.3)   -- Move forward
     end
 end
 
