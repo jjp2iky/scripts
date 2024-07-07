@@ -51,6 +51,10 @@ local function fireTouchDetectors()
 end
 
 local function createGui()
+    if game.Players.LocalPlayer:WaitForChild("PlayerGui"):FindFirstChild("TeleportGui") then
+        return -- GUI already exists, so we return to avoid creating it again
+    end
+
     local ScreenGui = Instance.new("ScreenGui")
     local MenuFrame = Instance.new("Frame")
     local ToggleButtonFrame = Instance.new("Frame")
@@ -94,6 +98,10 @@ local function createGui()
     LoadingBar.BackgroundColor3 = Color3.fromRGB(85, 255, 85)
     LoadingBar.Parent = LoadingFrame
 
+    local LoadingBarUICorner = Instance.new("UICorner")
+    LoadingBarUICorner.CornerRadius = UDim.new(0.5, 0)  -- Fully rounded
+    LoadingBarUICorner.Parent = LoadingBar
+
     local progressTween = game:GetService("TweenService"):Create(LoadingBar, TweenInfo.new(2.5, Enum.EasingStyle.Linear), {Size = UDim2.new(1, 0, 0, 5)})
     progressTween:Play()
 
@@ -113,7 +121,7 @@ local function createGui()
     UICorner.CornerRadius = UDim.new(0.1, 0)
     UICorner.Parent = MenuFrame
 
-    TpCubesLabel.Size = UDim2.new(0, 51, 0,7)
+    TpCubesLabel.Size = UDim2.new(0, 51, 0, 7)
     TpCubesLabel.Position = UDim2.new(0.5, -50, 0.5, -62)
     TpCubesLabel.BackgroundTransparency = 1
     TpCubesLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -302,9 +310,9 @@ local function createGui()
                     local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
                     if humanoidRootPart then
                         local initialPosition = humanoidRootPart.Position
-                        humanoidRootPart.CFrame = humanoidRootPart.CFrame * CFrame.new(0, 0.1, -0.2) -- Move back
+                        humanoidRootPart.CFrame = humanoidRootPart.CFrame * CFrame.new(0, 0.091, -0.082) -- Move back
                         wait(0.05)
-                        humanoidRootPart.CFrame = humanoidRootPart.CFrame * CFrame.new(0, 0, 0.2) -- Move forward
+                        humanoidRootPart.CFrame = humanoidRootPart.CFrame * CFrame.new(0, 0, 0.082) -- Move forward
                     end
                 end
 
@@ -376,6 +384,10 @@ local function createGui()
         progressBar.Position = UDim2.new(0, 0, 1, -5)
         progressBar.BackgroundColor3 = Color3.fromRGB(255, 85, 85)
         progressBar.Parent = message
+
+        local progressBarUICorner = Instance.new("UICorner")
+        progressBarUICorner.CornerRadius = UDim.new(0.5, 0)  -- Fully rounded
+        progressBarUICorner.Parent = progressBar
 
         local progressTween = game:GetService("TweenService"):Create(progressBar, TweenInfo.new(1.5, Enum.EasingStyle.Linear), {Size = UDim2.new(0, 0, 0, 5)})
         progressTween:Play()
