@@ -14,6 +14,106 @@ local cubeNames = {
     "Stellar Nebula"
 }
 
+local cubeColors = {
+    ["Luck Cube"] = "#05ff3b",
+    ["Speed Cube"] = "#6397ff",
+    ["Inferno Cube"] = "#fc6330",
+    ["Glitch Cube"] = "#440345",
+    ["Haste Cube"] = "#0558ff",
+    ["Fortune Cube"] = "#288000",
+    ["Pastel Cube"] = "#cc96ff",
+    ["Golden Cube"] = "#fab546",
+    ["Wealth Cube"] = "#ffec59",
+    ["Spore Blossom"] = "#ed4aff",
+    ["Technosphere"] = "#5c4aff",
+    ["Event Horizon"] = "#6854ff",
+    ["Stellar Nebula"] = "#ffffff"
+}
+
+local notifiedCubes = {}
+local webhookUrl = ''
+local userId = ''
+local notificationCooldown = 0.86 -- seconds
+
+local function hexToRGB(hex)
+    hex = hex:gsub("#", "")
+    return tonumber("0x"..hex:sub(1,2)), tonumber("0x"..hex:sub(3,4)), tonumber("0x"..hex:sub(5,6))
+end
+
+local function RGBToDecimal(r, g, b)
+    return (r * 256 * 256) + (g * 256) + b
+end
+
+local function sendDiscordNotification(cubeName)
+    local currentTime = tick()
+
+    if notifiedCubes[cubeName] and currentTime - notifiedCubes[cubeName] < notificationCooldown then
+        return
+    end
+
+    notifiedCubes[cubeName] = currentTime
+
+    local OSTime = os.time()
+    local Time = os.date('!*t', OSTime)
+    local Avatar = 'https://cdn.discordapp.com/embed/avatars/4.png'
+    local colorHex = cubeColors[cubeName] or "#1F40FF" -- default color if not found
+    local r, g, b = hexToRGB(colorHex)
+    local Embed = {
+        title = 'Tycoon RNG',
+        color = RGBToDecimal(r, g, b),
+        footer = { text = game.JobId },
+        fields = {
+            {
+                name = cubeName, -- Collected cube Name
+                value = 'collected'
+            }
+        },
+        timestamp = string.format('%d-%d-%dT%02d:%02d:%02dZ', Time.year, Time.month, Time.day, Time.hour, Time.min, Time.sec)
+    }
+
+    if cubeName == "Stellar Nebula" or cubeName == "Event Horizon" or cubeName == "Technosphere" or cubeName == "Spore Blossom" then
+        table.insert(Embed.fields, {
+            name = "User",
+            value = "<@"..userId..">"
+        })
+    end
+
+    (syn and syn.request or http_request) {
+        Url = webhookUrl, -- Use the updated webhook URL
+        Method = 'POST',
+        Headers = {
+            ['Content-Type'] = 'application/json'
+        },
+        Body = game:GetService('HttpService'):JSONEncode({ embeds = { Embed } })
+    }
+end
+
+local function sendMeteorNotification(rarity)
+    local OSTime = os.time()
+    local Time = os.date('!*t', OSTime)
+    local Avatar = 'https://cdn.discordapp.com/embed/avatars/4.png'
+    local Embed = {
+        title = 'Tycoon RNG',
+        color = '99999',
+        footer = { text = game.JobId },
+        fields = {
+            {
+                name = 'Meteor',
+                value = rarity .. ' dropped.'
+            }
+        },
+        timestamp = string.format('%d-%d-%dT%02d:%02d:%02dZ', Time.year, Time.month, Time.day, Time.hour, Time.min, Time.sec)
+    }
+    (syn and syn.request or http_request) {
+        Url = 'https://discord.com/api/webhooks/1259826643824935043/GqNFsVhZkRU7shtNCMhlBHGgjiR6GlCyQ0mnFRO2ZFzowt6B_aj-soqgD3DmCh2Z0F9l',
+        Method = 'POST',
+        Headers = {
+            ['Content-Type'] = 'application/json'
+        },
+        Body = game:GetService('HttpService'):JSONEncode({ embeds = { Embed } })
+    }
+end
+
 local function teleportPlayer()
     local player = game.Players.LocalPlayer
 
@@ -26,12 +126,12 @@ local function teleportPlayer()
             if cubeModel and cubeModel:IsA("Model") then
                 local modelCenter = cubeModel:GetModelCFrame().p
                 character:SetPrimaryPartCFrame(CFrame.new(modelCenter))
-                sendDiscordNotification(cubeName)
+                sendDiscordNotification(cubeName) -- Send notification when teleporting to the cube
                 break
             end
         end
     else
-        print("Player or their character didn't found.")
+        print("Player or their character not found.")
     end
 end
 
@@ -44,6 +144,7 @@ local function fireTouchDetectors()
                 if child:IsA("TouchTransmitter") then
                     firetouchinterest(game.Players.LocalPlayer.Character.PrimaryPart, child.Parent, 0)
                     firetouchinterest(game.Players.LocalPlayer.Character.PrimaryPart, child.Parent, 1)
+                    sendDiscordNotification(cubeName) -- Send notification for each collected cube
                 end
             end
         end
@@ -67,17 +168,20 @@ local function createGui()
     local LoadingBar = Instance.new("Frame")
     local TpCubesLabel = Instance.new("TextLabel")
     local BringCubesLabel = Instance.new("TextLabel")
+    local WebhookTextBox = Instance.new("TextBox")
+    local UserIdTextBox = Instance.new("TextBox") -- New User ID TextBox
+    local CubeCountLabel = Instance.new("TextLabel") -- Added for cube count display
 
     ScreenGui.Name = "TeleportGui"
     ScreenGui.ResetOnSpawn = false
     ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 
-    ScreenGui.DisplayOrder = 1000 
+    ScreenGui.DisplayOrder = 1000
 
     LoadingFrame.Size = UDim2.new(0, 150, 0, 50)
     LoadingFrame.Position = UDim2.new(0.5, -75, 0.5, 20)
-    LoadingFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    LoadingFrame.BackgroundTransparency = 0.2
+    LoadingFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    LoadingFrame.BackgroundTransparency = 0.3
     LoadingFrame.BorderSizePixel = 0
     LoadingFrame.Parent = ScreenGui
 
@@ -108,10 +212,10 @@ local function createGui()
     wait(2.5)
     LoadingFrame:Destroy()
 
-    MenuFrame.Size = UDim2.new(0, 200, 0, 160)
-    MenuFrame.Position = UDim2.new(0.5, -100, 0.5, -80)
-    MenuFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    MenuFrame.BackgroundTransparency = 0.2
+    MenuFrame.Size = UDim2.new(0, 320, 0, 270) -- Increased height by 50 to accommodate new text box
+    MenuFrame.Position = UDim2.new(0.5, -100, 0.5, -135)
+    MenuFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    MenuFrame.BackgroundTransparency = 0.8
     MenuFrame.BorderSizePixel = 0
     MenuFrame.AnchorPoint = Vector2.new(0.5, 0.5)
     MenuFrame.Draggable = true
@@ -122,7 +226,7 @@ local function createGui()
     UICorner.Parent = MenuFrame
 
     TpCubesLabel.Size = UDim2.new(0, 51, 0, 7)
-    TpCubesLabel.Position = UDim2.new(0.5, -50, 0.5, -62)
+    TpCubesLabel.Position = UDim2.new(0.5, -130, 0.5, -82)
     TpCubesLabel.BackgroundTransparency = 1
     TpCubesLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
     TpCubesLabel.Text = "TP to Cubes"
@@ -130,7 +234,7 @@ local function createGui()
     TpCubesLabel.Parent = MenuFrame
 
     ToggleButtonFrame.Size = UDim2.new(0, 100, 0, 40)
-    ToggleButtonFrame.Position = UDim2.new(0.5, -50, 0.5, -50)
+    ToggleButtonFrame.Position = UDim2.new(0.5, -130, 0.5, -70)
     ToggleButtonFrame.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
     ToggleButtonFrame.Parent = MenuFrame
 
@@ -140,7 +244,7 @@ local function createGui()
 
     ToggleButton.Size = UDim2.new(0.5, -5, 1, -10)
     ToggleButton.Position = UDim2.new(0, 5, 0, 5)
-    ToggleButton.BackgroundColor3 = Color3.fromRGB(255, 85, 85)
+    ToggleButton.BackgroundColor3 = Color3.fromRGB(85, 85, 85)
     ToggleButton.Text = "Off"
     ToggleButton.Parent = ToggleButtonFrame
 
@@ -149,15 +253,55 @@ local function createGui()
     ButtonUICorner.Parent = ToggleButton
 
     BringCubesLabel.Size = UDim2.new(0, 52, 0, 10)
-    BringCubesLabel.Position = UDim2.new(0.5, -50, 0.5, -8)
+    BringCubesLabel.Position = UDim2.new(0.5, -130, 0.5, -25)
     BringCubesLabel.BackgroundTransparency = 1
     BringCubesLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
     BringCubesLabel.Text = "Bring Cubes"
     BringCubesLabel.TextScaled = true
     BringCubesLabel.Parent = MenuFrame
 
+    WebhookTextBox.Size = UDim2.new(0.5, 0, 0.10, 0)
+    WebhookTextBox.Position = UDim2.new(0.45, 0, 0.925, -180)
+    WebhookTextBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    WebhookTextBox.Text = "Enter webhook URL"
+    WebhookTextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+    WebhookTextBox.ClearTextOnFocus = true
+    WebhookTextBox.TextWrapped = true
+    WebhookTextBox.Parent = MenuFrame
+
+    local WebhookTextBoxUICorner = Instance.new("UICorner")
+    WebhookTextBoxUICorner.CornerRadius = UDim.new(0.1, 0)
+    WebhookTextBoxUICorner.Parent = WebhookTextBox
+
+    WebhookTextBox.FocusLost:Connect(function(enterPressed)
+        if enterPressed then
+            webhookUrl = WebhookTextBox.Text
+            WebhookTextBox.Text = "Webhook URL Set"
+        end
+    end)
+
+    UserIdTextBox.Size = UDim2.new(0.5, 0, 0.10, 0)
+    UserIdTextBox.Position = UDim2.new(0.45, 0, 1.14, -180) -- Position below the WebhookTextBox
+    UserIdTextBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    UserIdTextBox.Text = "Enter User ID"
+    UserIdTextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+    UserIdTextBox.ClearTextOnFocus = true
+    UserIdTextBox.TextWrapped = true
+    UserIdTextBox.Parent = MenuFrame
+
+    local UserIdTextBoxUICorner = Instance.new("UICorner")
+    UserIdTextBoxUICorner.CornerRadius = UDim.new(0.1, 0)
+    UserIdTextBoxUICorner.Parent = UserIdTextBox
+
+    UserIdTextBox.FocusLost:Connect(function(enterPressed)
+        if enterPressed then
+            userId = UserIdTextBox.Text
+            UserIdTextBox.Text = "User ID Set"
+        end
+    end)
+
     FireTouchDetectorsFrame.Size = UDim2.new(0, 100, 0, 40)
-    FireTouchDetectorsFrame.Position = UDim2.new(0.5, -50, 0.5, 4)
+    FireTouchDetectorsFrame.Position = UDim2.new(0.5, -130, 0.5, -13)
     FireTouchDetectorsFrame.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
     FireTouchDetectorsFrame.Parent = MenuFrame
 
@@ -167,7 +311,7 @@ local function createGui()
 
     FireTouchDetectorsButton.Size = UDim2.new(0.5, -5, 1, -10)
     FireTouchDetectorsButton.Position = UDim2.new(0, 5, 0, 5)
-    FireTouchDetectorsButton.BackgroundColor3 = Color3.fromRGB(255, 85, 85)
+    FireTouchDetectorsButton.BackgroundColor3 = Color3.fromRGB(85, 85, 85)
     FireTouchDetectorsButton.Text = "Off"
     FireTouchDetectorsButton.Parent = FireTouchDetectorsFrame
 
@@ -176,7 +320,7 @@ local function createGui()
     FireTouchDetectorsButtonUICorner.Parent = FireTouchDetectorsButton
 
     AntiAfkButton.Size = UDim2.new(0, 100, 0, 20)
-    AntiAfkButton.Position = UDim2.new(0.5, -50, 1, -30)
+    AntiAfkButton.Position = UDim2.new(0.5, -130, 1, -30)
     AntiAfkButton.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
     AntiAfkButton.Text = "Anti AFK: Off"
     AntiAfkButton.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -188,7 +332,7 @@ local function createGui()
 
     CollapseButton.Size = UDim2.new(0, 50, 0, 30)
     CollapseButton.Position = UDim2.new(0.5, -25, 0, 10)
-    CollapseButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    CollapseButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
     CollapseButton.BackgroundTransparency = 0
     CollapseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
     CollapseButton.Text = "X"
@@ -260,7 +404,7 @@ local function createGui()
             end)
         else
             ToggleButton:TweenSizeAndPosition(UDim2.new(0.5, -5, 1, -10), UDim2.new(0, 5, 0, 5), "Out", "Quad", 0.2, true)
-            ToggleButton.BackgroundColor3 = Color3.fromRGB(255, 85, 85)
+            ToggleButton.BackgroundColor3 = Color3.fromRGB(85, 85, 85)
             ToggleButton.Text = "Off"
             if teleportConnection then
                 teleportConnection:Disconnect()
@@ -285,11 +429,11 @@ local function createGui()
             FireTouchDetectorsButton.Text = "On"
             fireTouchConnection = game:GetService("RunService").Stepped:Connect(function()
                 fireTouchDetectors()
-                wait(0.2)
+                wait(1.5)
             end)
         else
             FireTouchDetectorsButton:TweenSizeAndPosition(UDim2.new(0.5, -5, 1, -10), UDim2.new(0, 5, 0, 5), "Out", "Quad", 0.2, true)
-            FireTouchDetectorsButton.BackgroundColor3 = Color3.fromRGB(255, 85, 85)
+            FireTouchDetectorsButton.BackgroundColor3 = Color3.fromRGB(85, 85, 85)
             FireTouchDetectorsButton.Text = "Off"
             if fireTouchConnection then
                 fireTouchConnection:Disconnect()
@@ -334,7 +478,7 @@ local function createGui()
     CollapseButton.MouseButton1Click:Connect(function()
         guiCollapsed = not guiCollapsed
         if guiCollapsed then
-            MenuFrame:TweenSizeAndPosition(UDim2.new(0, 200, 0, 0), UDim2.new(0.5, -100, 0.5, -50), "Out", "Quad", 0.2, true)
+            MenuFrame:TweenSizeAndPosition(UDim2.new(0, 200, 0, 0), UDim2.new(0.5, -100, 0.5, -130), "Out", "Quad", 0.2, true)
             ToggleButtonFrame:TweenSizeAndPosition(UDim2.new(0, 0, 0, 0), UDim2.new(0.5, 0, 0.5, 0), "Out", "Quad", 0.2, true)
             ToggleButton:TweenSize(UDim2.new(0, 0, 0, 0), "Out", "Quad", 0.2, true, function()
                 ToggleButton.Visible = false
@@ -347,6 +491,9 @@ local function createGui()
             end)
             TpCubesLabel.Visible = false
             BringCubesLabel.Visible = false
+            WebhookTextBox.Visible = false
+            UserIdTextBox.Visible = false -- Hide UserIdTextBox
+            CubeCountLabel.Visible = false -- Hide CubeCountLabel
             CollapseButton.Text = ">"
         else
             ToggleButton.Visible = true
@@ -354,10 +501,13 @@ local function createGui()
             AntiAfkButton.Visible = true
             TpCubesLabel.Visible = true
             BringCubesLabel.Visible = true
+            WebhookTextBox.Visible = true
+            UserIdTextBox.Visible = true -- Show UserIdTextBox
+            CubeCountLabel.Visible = true -- Show CubeCountLabel
             MenuFrame:TweenSizeAndPosition(initialMenuFrameSize, initialMenuFramePosition, "Out", "Quad", 0.2, true)
-            ToggleButtonFrame:TweenSizeAndPosition(UDim2.new(0, 100, 0, 40), UDim2.new(0.5, -50, 0.5, -50), "Out", "Quad", 0.2, true)
+            ToggleButtonFrame:TweenSizeAndPosition(UDim2.new(0, 100, 0, 40), UDim2.new(0.5, -130, 0.5, -70), "Out", "Quad", 0.2, true)
             ToggleButton:TweenSize(UDim2.new(0.5, -5, 1, -10), "Out", "Quad", 0.2, true)
-            FireTouchDetectorsFrame:TweenSizeAndPosition(UDim2.new(0, 100, 0, 40), UDim2.new(0.5, -50, 0.5, 4), "Out", "Quad", 0.2, true)
+            FireTouchDetectorsFrame:TweenSizeAndPosition(UDim2.new(0, 100, 0, 40), UDim2.new(0.5, -130, 0.5, -13), "Out", "Quad", 0.2, true)
             FireTouchDetectorsButton:TweenSize(UDim2.new(0.5, -5, 1, -10), "Out", "Quad", 0.2, true)
             AntiAfkButton:TweenSize(UDim2.new(0, 100, 0, 20), "Out", "Quad", 0.2, true)
             CollapseButton.Text = "X"
@@ -369,7 +519,7 @@ local function createGui()
         message.Text = "Closing... Bye!"
         message.Size = UDim2.new(0, 200, 0, 50)
         message.Position = UDim2.new(1, -210, 1, -60)
-        message.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+        message.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
         message.TextColor3 = Color3.fromRGB(255, 255, 255)
         message.TextScaled = true
         message.BackgroundTransparency = 0.5
@@ -382,7 +532,7 @@ local function createGui()
         local progressBar = Instance.new("Frame")
         progressBar.Size = UDim2.new(1, 0, 0, 5)
         progressBar.Position = UDim2.new(0, 0, 1, -5)
-        progressBar.BackgroundColor3 = Color3.fromRGB(255, 85, 85)
+        progressBar.BackgroundColor3 = Color3.fromRGB(85, 255, 85)
         progressBar.Parent = message
 
         local progressBarUICorner = Instance.new("UICorner")
@@ -395,15 +545,14 @@ local function createGui()
         message:TweenPosition(UDim2.new(1, -210, 1, -110), "Out", "Quad", 0.5, true)
         game:GetService("TweenService"):Create(message, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0.5, TextTransparency = 0.5}):Play()
 
-        wait(1.5)
+        wait(1.02)
 
         game:GetService("TweenService"):Create(message, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 1, TextTransparency = 1}):Play()
-        wait(0.5)
+        wait(1.02)
         message:Destroy()
     end
 
     local function removeGui()
-
         if teleporting then
             teleporting = false
             if teleportConnection then
@@ -435,14 +584,14 @@ local function createGui()
         showClosingMessage()
         wait(0.2)
 
-        MenuFrame:TweenSizeAndPosition(UDim2.new(0, 200, 0, 0), UDim2.new(0.5, -100, 0.5, -50), "Out", "Quad", 0.5, true)
+        MenuFrame:TweenSizeAndPosition(UDim2.new(0, 200, 0, 0), UDim2.new(0.5, -100, 0.5, -130), "Out", "Quad", 0.5, true)
         game:GetService("TweenService"):Create(MenuFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 1}):Play()
         ToggleButtonFrame:TweenSizeAndPosition(UDim2.new(0, 0, 0, 0), UDim2.new(0.5, 0, 0.5, 0), "Out", "Quad", 0.5, true)
         game:GetService("TweenService"):Create(ToggleButtonFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 1}):Play()
         game:GetService("TweenService"):Create(CollapseButton, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 1}):Play()
         wait(0.5)
         ScreenGui:Destroy()
-    end 
+    end
 
     UIS.InputBegan:Connect(function(input)
         if input.KeyCode == Enum.KeyCode.L then
@@ -451,8 +600,36 @@ local function createGui()
     end)
 
     MenuFrame.BackgroundTransparency = 1
-    local fadeInTween = game:GetService("TweenService"):Create(MenuFrame, TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0.2})
+    local fadeInTween = game:GetService("TweenService"):Create(MenuFrame, TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0.3})
     fadeInTween:Play()
+
+    -- Adding Cube Count Label
+    CubeCountLabel.Size = UDim2.new(0, 120, 0, 15)
+    CubeCountLabel.Position = UDim2.new(1, -160, 0, 5)
+    CubeCountLabel.BackgroundTransparency = 1
+    CubeCountLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    CubeCountLabel.Text = "Amount RN: 0"
+    CubeCountLabel.TextScaled = true
+    CubeCountLabel.Parent = MenuFrame
+
+    -- Function to count the cubes
+    local function updateCubeCount()
+        local count = 0
+        for _, cubeName in ipairs(cubeNames) do
+            if game.Workspace:FindFirstChild(cubeName) then
+                count = count + 1
+            end
+        end
+        CubeCountLabel.Text = "Amount RN: " .. count
+    end
+
+    -- Update the cube count periodically
+    spawn(function()
+        while true do
+            updateCubeCount()
+            wait(1)
+        end
+    end)
 end
 
 game.Players.PlayerAdded:Connect(function(player)
@@ -488,3 +665,4 @@ while true do
     simulateMovement()
     wait(60)
 end
+
