@@ -62,6 +62,52 @@ do
         end
     })
 
+Tabs.Main:AddButton({
+        Title = "Obby complete",
+        Description = "Teleport to finish obby",
+        Callback = function()
+            Window:Dialog({
+                Title = "Teleport?",
+                Content = "",
+                Buttons = {
+                    {
+                        Title = "Confirm",
+                        Callback = function()
+-- Получаем игрока
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+
+-- Задаем целевой CFrame
+local targetCFrame = CFrame.new(1490.74817, 1150.20374, -1379.94177, 0.499959469, 0, -0.866048813, 0, 1, 0, 0.866048813, 0, 0.499959469)
+
+-- Функция для телепортации игрока
+local function teleportPlayer()
+    -- Убедимся, что у игрока есть модель персонажа
+    if character and character:FindFirstChild("HumanoidRootPart") then
+        -- Телепортируем игрока
+        character.HumanoidRootPart.CFrame = targetCFrame
+    else
+        print("Персонаж не найден или у него нет HumanoidRootPart")
+    end
+end
+
+-- Вызываем функцию телепортации
+teleportPlayer()
+
+                        end
+                    },
+                    {
+                        Title = "Cancel",
+                        Callback = function()
+                            print("Cancelled the dialog.")
+                        end
+                    }
+                }
+            })
+        end
+    })
+
+
     local Toggle = Tabs.Main:AddToggle("MyToggle", {Title = "Items Auto Farm(can stop not instantly)", Default = false })
 
     local function executeScript()
