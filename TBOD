@@ -1,0 +1,347 @@
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+local UserInputService = game:GetService("UserInputService")
+
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.ResetOnSpawn = false 
+screenGui.Parent = playerGui
+
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 350, 0, 200)
+frame.Position = UDim2.new(0.5, -175, 0.5, -100)
+frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+frame.BorderSizePixel = 0
+frame.Parent = screenGui
+
+
+local uiCorner = Instance.new("UICorner")
+uiCorner.CornerRadius = UDim.new(0, 5)
+uiCorner.Parent = frame
+
+
+local mainButton = Instance.new("TextButton")
+mainButton.Size = UDim2.new(0, 100, 0, 40)
+mainButton.Position = UDim2.new(0, 0, 0, 0)
+mainButton.Text = "Main"
+mainButton.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+mainButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+mainButton.Font = Enum.Font.GothamBold
+mainButton.TextSize = 18
+mainButton.Parent = frame
+
+local playerButton = Instance.new("TextButton")
+playerButton.Size = UDim2.new(0, 100, 0, 40)
+playerButton.Position = UDim2.new(0, 0, 0, 40)
+playerButton.Text = "Player"
+playerButton.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+playerButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+playerButton.Font = Enum.Font.GothamBold
+playerButton.TextSize = 18
+playerButton.Parent = frame
+
+
+local uiCornerCategory1 = Instance.new("UICorner")
+uiCornerCategory1.CornerRadius = UDim.new(0, 5)
+uiCornerCategory1.Parent = mainButton
+
+local uiCornerCategory2 = Instance.new("UICorner")
+uiCornerCategory2.CornerRadius = UDim.new(0, 5)
+uiCornerCategory2.Parent = playerButton
+
+
+local separator = Instance.new("Frame")
+separator.Size = UDim2.new(0, 2, 0, 37)
+separator.Position = UDim2.new(0, 100, 0.5, -18.5)
+separator.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+separator.BorderSizePixel = 0
+separator.Parent = frame
+
+
+local separatorCorner = Instance.new("UICorner")
+separatorCorner.CornerRadius = UDim.new(0, 1)
+separatorCorner.Parent = separator
+
+
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(1, -100, 1, 0)
+mainFrame.Position = UDim2.new(0, 100, 0, 0)
+mainFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+mainFrame.BorderSizePixel = 0
+mainFrame.Visible = true
+mainFrame.Parent = frame
+mainFrame.ZIndex = 1
+
+
+local mainFrameCorner = Instance.new("UICorner")
+mainFrameCorner.CornerRadius = UDim.new(0, 5)
+mainFrameCorner.Parent = mainFrame
+
+local toggleButton = Instance.new("TextButton")
+toggleButton.Size = UDim2.new(0, 40, 0, 20) 
+toggleButton.Position = UDim2.new(0.78, 5, 0.135, 5) 
+toggleButton.Text = "Off"
+toggleButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleButton.Font = Enum.Font.GothamBold
+toggleButton.TextSize = 15
+toggleButton.Parent = mainFrame
+toggleButton.ZIndex = 3
+
+
+local toggleButtonCorner = Instance.new("UICorner")
+toggleButtonCorner.CornerRadius = UDim.new(0, 5)
+toggleButtonCorner.Parent = toggleButton
+
+
+local freeBoostLabel = Instance.new("TextLabel")
+freeBoostLabel.Size = UDim2.new(0, 50, 0, 25)
+freeBoostLabel.Position = UDim2.new(0.275, -50, 0.27, -24)
+freeBoostLabel.BackgroundTransparency = 1
+freeBoostLabel.Text = "free boost"
+freeBoostLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+freeBoostLabel.Font = Enum.Font.GothamBold
+freeBoostLabel.TextSize = 15
+freeBoostLabel.Parent = mainFrame
+freeBoostLabel.ZIndex = 3
+
+
+local backgroundFrame = Instance.new("Frame")
+backgroundFrame.Size = UDim2.new(4.8, 0, 1, 0)
+backgroundFrame.Position = UDim2.new(-0.3, 0, 0, 0)
+backgroundFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+backgroundFrame.BorderSizePixel = 0
+backgroundFrame.ZIndex = 2
+backgroundFrame.Parent = freeBoostLabel
+
+
+local freeBoostLabelCorner = Instance.new("UICorner")
+freeBoostLabelCorner.CornerRadius = UDim.new(0, 3)
+freeBoostLabelCorner.Parent = backgroundFrame
+
+
+local playerFrame = Instance.new("Frame")
+playerFrame.Size = UDim2.new(1, -100, 1, 0)
+playerFrame.Position = UDim2.new(0, 100, 0, 0)
+playerFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+playerFrame.BorderSizePixel = 0
+playerFrame.Visible = false
+playerFrame.Parent = frame
+
+
+local playerFrameCorner = Instance.new("UICorner")
+playerFrameCorner.CornerRadius = UDim.new(0, 5)
+playerFrameCorner.Parent = playerFrame
+
+
+local walkSpeedLabel = Instance.new("TextLabel")
+walkSpeedLabel.Size = UDim2.new(0, 150, 0, 25)
+walkSpeedLabel.Position = UDim2.new(0, 10, 0, 10)
+walkSpeedLabel.BackgroundTransparency = 1
+walkSpeedLabel.Text = "Player WalkSpeed"
+walkSpeedLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+walkSpeedLabel.Font = Enum.Font.GothamBold
+walkSpeedLabel.TextSize = 12
+walkSpeedLabel.Parent = playerFrame
+
+
+local sliderTrack = Instance.new("Frame")
+sliderTrack.Size = UDim2.new(0, 200, 0, 8)
+sliderTrack.Position = UDim2.new(0, 10, 0, 40)
+sliderTrack.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+sliderTrack.BorderSizePixel = 0
+sliderTrack.Parent = playerFrame
+
+
+local sliderTrackCorner = Instance.new("UICorner")
+sliderTrackCorner.CornerRadius = UDim.new(0, 3)
+sliderTrackCorner.Parent = sliderTrack
+
+
+local sliderHandle = Instance.new("Frame")
+sliderHandle.Size = UDim2.new(0, 10, 0, 20)
+sliderHandle.Position = UDim2.new(0, -6, 0, -7)
+sliderHandle.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+sliderHandle.BorderSizePixel = 0
+sliderHandle.Parent = sliderTrack
+
+
+local sliderHandleGradient = Instance.new("UIGradient")
+sliderHandleGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0, Color3.fromRGB(100, 100, 100)), ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 200, 200))}
+sliderHandleGradient.Parent = sliderHandle
+
+
+local sliderHandleStroke = Instance.new("UIStroke")
+sliderHandleStroke.Color = Color3.fromRGB(20, 20, 20)
+sliderHandleStroke.Thickness = 0.70
+sliderHandleStroke.Parent = sliderHandle
+
+
+local sliderValueLabel = Instance.new("TextLabel")
+sliderValueLabel.Size = UDim2.new(0, 50, 0, 25)
+sliderValueLabel.Position = UDim2.new(0, 201, 0, 33)
+sliderValueLabel.BackgroundTransparency = 1
+sliderValueLabel.Text = "16"
+sliderValueLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+sliderValueLabel.Font = Enum.Font.GothamBold
+sliderValueLabel.TextSize = 14
+sliderValueLabel.Parent = playerFrame
+
+
+local function updateSlider(input)
+    local delta = input.Position.X - sliderTrack.AbsolutePosition.X
+    local percent = math.clamp(delta / sliderTrack.AbsoluteSize.X, 0, 1)
+    sliderHandle.Position = UDim2.new(percent, -sliderHandle.AbsoluteSize.X / 2, 0, -7)
+    local walkSpeed = 16 + percent * (1000 - 16)
+    player.Character.Humanoid.WalkSpeed = walkSpeed
+    sliderValueLabel.Text = tostring(math.floor(walkSpeed))
+end
+
+local isDraggingSlider = false
+
+
+local function onMouseMove(input)
+    if isDraggingSlider then
+        updateSlider(input)
+    end
+end
+
+
+sliderHandle.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType.Touch then
+        isDraggingSlider = true
+        
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                isDraggingSlider = false
+            end
+        end)
+    end
+end)
+
+sliderTrack.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType.Touch then
+        if isDraggingSlider then
+            onMouseMove(input)
+        end
+    end
+end)
+
+
+mainButton.MouseButton1Click:Connect(function()
+    mainFrame.Visible = true
+    playerFrame.Visible = false
+end)
+
+playerButton.MouseButton1Click:Connect(function()
+    mainFrame.Visible = false
+    playerFrame.Visible = true
+end)
+
+
+local isOn = false
+local connection
+
+
+local function toggle()
+    isOn = not isOn
+    toggleButton.Text = isOn and "On" or "Off"
+    toggleButton.BackgroundColor3 = isOn and Color3.fromRGB(0, 170, 0) or Color3.fromRGB(40, 40, 40)
+    
+    if isOn then
+        connection = game:GetService("RunService").RenderStepped:Connect(function()
+            local player = game:GetService("Players").LocalPlayer
+            local threeBoostTime = player:FindFirstChild("threeBoostTime")
+            if threeBoostTime and threeBoostTime:IsA("IntValue") then
+                threeBoostTime.Value = 9999999
+
+                local twoBoostTime = player:FindFirstChild("twoBoostTime")
+                if twoBoostTime and twoBoostTime:IsA("IntValue") then
+                    twoBoostTime.Value = 9999999
+                end
+            end
+        end)
+    else
+        if connection then
+            connection:Disconnect()
+            connection = nil
+        end
+    end
+end
+
+
+toggleButton.MouseButton1Click:Connect(toggle)
+
+
+local dragging
+local dragInput
+local dragStart
+local startPos
+
+local function update(input)
+    local delta = input.Position - dragStart
+    frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+
+frame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType.Touch then
+        if not isDraggingSlider then
+            dragging = true
+            dragStart = input.Position
+            startPos = frame.Position
+
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end
+end)
+
+frame.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType.Touch then
+        dragInput = input
+    end
+end)
+
+game:GetService("UserInputService").InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        update(input)
+    end
+end)
+
+
+local function removeGui()
+    local TweenService = game:GetService("TweenService")
+    local tweenInfo = TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+    local tween = TweenService:Create(screenGui, tweenInfo, {Transparency = 1})
+
+    tween:Play()
+    tween.Completed:Connect(function()
+        screenGui:Destroy()
+    end)
+end
+
+
+local hideButton = Instance.new("TextButton")
+hideButton.Size = UDim2.new(0, 20, 0, 20)
+hideButton.Position = UDim2.new(1, -25, 0, 5)
+hideButton.Text = "x"
+hideButton.BackgroundColor3 = Color3.fromRGB(170, 0, 0)
+hideButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+hideButton.Font = Enum.Font.GothamBold
+hideButton.TextSize = 18
+hideButton.Parent = frame
+
+
+hideButton.MouseButton1Click:Connect(function()
+    screenGui.Enabled = not screenGui.Enabled
+end)
+
+
+local hideButtonCorner = Instance.new("UICorner")
+hideButtonCorner.CornerRadius = UDim.new(0, 5)
+hideButtonCorner.Parent = hideButton
