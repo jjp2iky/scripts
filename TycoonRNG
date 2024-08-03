@@ -34,6 +34,8 @@ local notifiedCubes = {}
 local webhookUrl = ''
 local userId = ''
 local notificationCooldown = 0.86 -- seconds
+local autoTycoonEnabled = false -- Auto Tycoon toggle
+local autoTycoonConnection
 
 local function hexToRGB(hex)
     hex = hex:gsub("#", "")
@@ -114,6 +116,32 @@ local function sendMeteorNotification(rarity)
     }
 end
 
+local function sendObbyEndNotification()
+    local OSTime = os.time()
+    local Time = os.date('!*t', OSTime)
+    local Embed = {
+        title = 'Tycoon Teleport',
+        color = RGBToDecimal(255, 255, 255), -- White color for "ObbyEnd"
+        footer = { text = game.JobId },
+        fields = {
+            {
+                name = 'ObbyEnd',
+                value = 'Teleported to ObbyEnd'
+            }
+        },
+        timestamp = string.format('%d-%d-%dT%02d:%02d:%02dZ', Time.year, Time.month, Time.day, Time.hour, Time.min, Time.sec)
+    }
+
+    (syn and syn.request or http_request) {
+        Url = webhookUrl,
+        Method = 'POST',
+        Headers = {
+            ['Content-Type'] = 'application/json'
+        },
+        Body = game:GetService('HttpService'):JSONEncode({ embeds = { Embed } })
+    }
+end
+
 local function teleportPlayer()
     local player = game.Players.LocalPlayer
 
@@ -151,6 +179,20 @@ local function fireTouchDetectors()
     end
 end
 
+local function autoTycoon()
+    while autoTycoonEnabled do
+        local player = game.Players.LocalPlayer
+        local character = player.Character
+
+        if character and workspace:FindFirstChild("ObbyEnd") then
+            character:SetPrimaryPartCFrame(workspace.ObbyEnd.CFrame)
+            sendObbyEndNotification() -- Send notification when teleporting to ObbyEnd
+        end
+
+        wait(182)
+    end
+end
+
 local function createGui()
     if game.Players.LocalPlayer:WaitForChild("PlayerGui"):FindFirstChild("TeleportGui") then
         return -- GUI already exists, so we return to avoid creating it again
@@ -168,10 +210,13 @@ local function createGui()
     local LoadingBar = Instance.new("Frame")
     local TpCubesLabel = Instance.new("TextLabel")
     local BringCubesLabel = Instance.new("TextLabel")
+    local AutoTycoonLabel = Instance.new("TextLabel") -- Auto Tycoon Label
+    local AutoTycoonButton = Instance.new("TextButton") -- Auto Tycoon Button
     local WebhookTextBox = Instance.new("TextBox")
     local UserIdTextBox = Instance.new("TextBox") -- New User ID TextBox
     local CubeCountLabel = Instance.new("TextLabel") -- Added for cube count display
-
+    local AutoTycoonFrame = Instance.new("Frame")
+    
     ScreenGui.Name = "TeleportGui"
     ScreenGui.ResetOnSpawn = false
     ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
@@ -212,7 +257,7 @@ local function createGui()
     wait(2.5)
     LoadingFrame:Destroy()
 
-    MenuFrame.Size = UDim2.new(0, 320, 0, 270) -- Increased height by 50 to accommodate new text box
+    MenuFrame.Size = UDim2.new(0, 320, 0, 330) -- Increased height to accommodate new button
     MenuFrame.Position = UDim2.new(0.5, -100, 0.5, -135)
     MenuFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
     MenuFrame.BackgroundTransparency = 0.8
@@ -343,6 +388,26 @@ local function createGui()
     CollapseButtonUICorner.CornerRadius = UDim.new(0.1, 0)
     CollapseButtonUICorner.Parent = CollapseButton
 
+    AutoTycoonLabel.Size = UDim2.new(0, 90, 0, 10)
+    AutoTycoonLabel.Position = UDim2.new(0.5, -130, 0.5, 40)
+    AutoTycoonLabel.BackgroundTransparency = 1
+    AutoTycoonLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    AutoTycoonLabel.Text = "Auto Tycoon"
+    AutoTycoonLabel.TextScaled = true
+    AutoTycoonLabel.Parent = MenuFrame
+
+local AutoTycoonButtonUICorner = Instance.new("UICorner")
+    AutoTycoonButtonUICorner.CornerRadius = UDim.new(0.2, 0)
+    AutoTycoonButtonUICorner.Parent = AutoTycoonButton
+
+    AutoTycoonButton.Size = UDim2.new(0.5, -5, 1, -10)
+    AutoTycoonButton.Position = UDim2.new(0, 5, 0, 5)
+    AutoTycoonButton.BackgroundColor3 = Color3.fromRGB(85, 85, 85)
+    AutoTycoonButton.Text = "Off"
+    AutoTycoonButton.Parent = ToggleButtonFrame:Clone() -- Clone the button frame for the new button
+    AutoTycoonButton.Parent.Position = UDim2.new(0.5, -130, 0.5, 50) -- Position it below the existing button
+    AutoTycoonButton.Parent.Parent = MenuFrame
+
     local UIS = game:GetService("UserInputService")
     local dragging
     local dragInput
@@ -471,48 +536,82 @@ local function createGui()
         end
     end
 
+    local function toggleAutoTycoon()
+        autoTycoonEnabled = not autoTycoonEnabled
+
+        if autoTycoonEnabled then
+            AutoTycoonButton:TweenSizeAndPosition(UDim2.new(1, -10, 1, -10), UDim2.new(0, 5, 0, 5), "Out", "Quad", 0.2, true)
+            AutoTycoonButton.BackgroundColor3 = Color3.fromRGB(85, 255, 85)
+            AutoTycoonButton.Text = "On"
+            autoTycoonConnection = coroutine.wrap(autoTycoon)
+            autoTycoonConnection()
+        else
+            AutoTycoonButton:TweenSizeAndPosition(UDim2.new(0.5, -5, 1, -10), UDim2.new(0, 5, 0, 5), "Out", "Quad", 0.2, true)
+            AutoTycoonButton.BackgroundColor3 = Color3.fromRGB(85, 85, 85)
+            AutoTycoonButton.Text = "Off"
+            autoTycoonEnabled = false
+        end
+    end
+
     ToggleButton.MouseButton1Click:Connect(toggleTeleport)
     FireTouchDetectorsButton.MouseButton1Click:Connect(toggleFireTouchDetectors)
     AntiAfkButton.MouseButton1Click:Connect(toggleAntiAfk)
+    AutoTycoonButton.MouseButton1Click:Connect(toggleAutoTycoon)
 
-    CollapseButton.MouseButton1Click:Connect(function()
-        guiCollapsed = not guiCollapsed
-        if guiCollapsed then
-            MenuFrame:TweenSizeAndPosition(UDim2.new(0, 200, 0, 0), UDim2.new(0.5, -100, 0.5, -130), "Out", "Quad", 0.2, true)
-            ToggleButtonFrame:TweenSizeAndPosition(UDim2.new(0, 0, 0, 0), UDim2.new(0.5, 0, 0.5, 0), "Out", "Quad", 0.2, true)
-            ToggleButton:TweenSize(UDim2.new(0, 0, 0, 0), "Out", "Quad", 0.2, true, function()
-                ToggleButton.Visible = false
-            end)
-            FireTouchDetectorsFrame:TweenSizeAndPosition(UDim2.new(0, 0, 0, 0), UDim2.new(0.5, 0, 0.5, 0), "Out", "Quad", 0.2, true, function()
-                FireTouchDetectorsButton.Visible = false
-            end)
-            AntiAfkButton:TweenSize(UDim2.new(0, 0, 0, 0), "Out", "Quad", 0.2, true, function()
-                AntiAfkButton.Visible = false
-            end)
-            TpCubesLabel.Visible = false
-            BringCubesLabel.Visible = false
-            WebhookTextBox.Visible = false
-            UserIdTextBox.Visible = false -- Hide UserIdTextBox
-            CubeCountLabel.Visible = false -- Hide CubeCountLabel
-            CollapseButton.Text = ">"
-        else
-            ToggleButton.Visible = true
-            FireTouchDetectorsButton.Visible = true
-            AntiAfkButton.Visible = true
-            TpCubesLabel.Visible = true
-            BringCubesLabel.Visible = true
-            WebhookTextBox.Visible = true
-            UserIdTextBox.Visible = true -- Show UserIdTextBox
-            CubeCountLabel.Visible = true -- Show CubeCountLabel
-            MenuFrame:TweenSizeAndPosition(initialMenuFrameSize, initialMenuFramePosition, "Out", "Quad", 0.2, true)
-            ToggleButtonFrame:TweenSizeAndPosition(UDim2.new(0, 100, 0, 40), UDim2.new(0.5, -130, 0.5, -70), "Out", "Quad", 0.2, true)
-            ToggleButton:TweenSize(UDim2.new(0.5, -5, 1, -10), "Out", "Quad", 0.2, true)
-            FireTouchDetectorsFrame:TweenSizeAndPosition(UDim2.new(0, 100, 0, 40), UDim2.new(0.5, -130, 0.5, -13), "Out", "Quad", 0.2, true)
-            FireTouchDetectorsButton:TweenSize(UDim2.new(0.5, -5, 1, -10), "Out", "Quad", 0.2, true)
-            AntiAfkButton:TweenSize(UDim2.new(0, 100, 0, 20), "Out", "Quad", 0.2, true)
-            CollapseButton.Text = "X"
-        end
-    end)
+CollapseButton.MouseButton1Click:Connect(function()
+    guiCollapsed = not guiCollapsed
+    if guiCollapsed then
+        MenuFrame:TweenSizeAndPosition(UDim2.new(0, 200, 0, 0), UDim2.new(0.5, -100, 0.5, -130), "Out", "Quad", 0.2, true)
+        ToggleButtonFrame:TweenSizeAndPosition(UDim2.new(0, 0, 0, 0), UDim2.new(0.5, 0, 0.5, 0), "Out", "Quad", 0.2, true)
+        ToggleButton:TweenSize(UDim2.new(0, 0, 0, 0), "Out", "Quad", 0.2, true, function()
+            ToggleButton.Visible = false
+        end)
+        FireTouchDetectorsFrame:TweenSizeAndPosition(UDim2.new(0, 0, 0, 0), UDim2.new(0.5, 0, 0.5, 0), "Out", "Quad", 0.2, true, function()
+            FireTouchDetectorsButton.Visible = false
+        end)
+        AntiAfkButton:TweenSize(UDim2.new(0, 0, 0, 0), "Out", "Quad", 0.2, true, function()
+            AntiAfkButton.Visible = false
+        end)
+        AutoTycoonButton.Parent:TweenSizeAndPosition(UDim2.new(0, 0, 0, 0), UDim2.new(0.5, 0, 0.5, 0), "Out", "Quad", 0.2, true, function()
+            AutoTycoonButton.Visible = false
+        end)
+        TpCubesLabel.Visible = false
+        BringCubesLabel.Visible = false
+        WebhookTextBox.Visible = false
+        AutoTycoonButton.Visible = false
+        AutoTycoonLabel.Visible = false
+        UserIdTextBox.Visible = false
+        CubeCountLabel.Visible = false -- Hide CubeCountLabel
+        CollapseButton.Text = ">"
+    else
+        ToggleButton.Visible = true
+        FireTouchDetectorsButton.Visible = true
+        AntiAfkButton.Visible = true
+        AutoTycoonButton.Visible = true
+        TpCubesLabel.Visible = true
+        BringCubesLabel.Visible = true
+        AutoTycoonButton.Visible = true
+        AutoTycoonLabel.Visible = true
+        WebhookTextBox.Visible = true
+        UserIdTextBox.Visible = true
+        CubeCountLabel.Visible = true -- Show CubeCountLabel
+        MenuFrame:TweenSizeAndPosition(initialMenuFrameSize, initialMenuFramePosition, "Out", "Quad", 0.2, true)
+        ToggleButtonFrame:TweenSizeAndPosition(UDim2.new(0, 100, 0, 40), UDim2.new(0.5, -130, 0.5, -70), "Out", "Quad", 0.2, true)
+        ToggleButton:TweenSize(UDim2.new(0.5, -5, 1, -10), "Out", "Quad", 0.2, true)
+        FireTouchDetectorsFrame:TweenSizeAndPosition(UDim2.new(0, 100, 0, 40), UDim2.new(0.5, -130, 0.5, -13), "Out", "Quad", 0.2, true)
+        FireTouchDetectorsButton:TweenSize(UDim2.new(0.5, -5, 1, -10), "Out", "Quad", 0.2, true)
+        AntiAfkButton:TweenSize(UDim2.new(0, 100, 0, 20), "Out", "Quad", 0.2, true)
+        AutoTycoonButton.Parent:TweenSizeAndPosition(UDim2.new(0, 100, 0, 40), UDim2.new(0.5, -130, 0.5, 50), "Out", "Quad", 0.2, true)
+        AutoTycoonButton:TweenSize(UDim2.new(0.5, -5, 1, -10), "Out", "Quad", 0.2, true)
+        AutoTycoonButton:TweenSizeAndPosition(UDim2.new(0, 100, 0, 40), UDim2.new(0.5, -130, 0.5, -70), "Out", "Quad", 0.2, true)
+        AutoTycoonButton:TweenSize(UDim2.new(0.5, -5, 1, -10), "Out", "Quad", 0.2, true)
+        AutoTycoonButton.Parent:TweenSizeAndPosition(UDim2.new(0, 100, 0, 40), UDim2.new(0.5, -130, 0.5, 50), "Out", "Quad", 0.2, true)
+        AutoTycoonButton:TweenSize(UDim2.new(0.5, -5, 1, -10), "Out", "Quad", 0.2, true)
+        AutoTycoonButton:TweenSizeAndPosition(UDim2.new(0, 100, 0, 40), UDim2.new(0.5, -130, 0.5, -70), "Out", "Quad", 0.2, true)
+        AutoTycoonButton:TweenSize(UDim2.new(0.5, -5, 1, -10), "Out", "Quad", 0.2, true)
+        CollapseButton.Text = "X"
+    end
+end)
 
     local function showClosingMessage()
         local message = Instance.new("TextLabel")
@@ -579,6 +678,10 @@ local function createGui()
             if fireTouchConnection then
                 fireTouchConnection:Disconnect()
             end
+        end
+
+        if autoTycoonEnabled then
+            autoTycoonEnabled = false
         end
 
         showClosingMessage()
@@ -665,4 +768,3 @@ while true do
     simulateMovement()
     wait(60)
 end
-
