@@ -244,33 +244,30 @@ end)
 local isOn = false
 local connection
 
+local function updateValues()
+    while isOn do
+        local player = game.Players.LocalPlayer
+        local twoBoostTime = player:WaitForChild("twoBoostTime")
+        local threeBoostTime = player:WaitForChild("threeBoostTime")
+        twoBoostTime.Value = 555
+        threeBoostTime.Value = 555
+        wait(1)
+    end
+end
 
 local function toggle()
     isOn = not isOn
     toggleButton.Text = isOn and "On" or "Off"
     toggleButton.BackgroundColor3 = isOn and Color3.fromRGB(0, 170, 0) or Color3.fromRGB(40, 40, 40)
-    
-    if isOn then
-        connection = game:GetService("RunService").RenderStepped:Connect(function()
-            local player = game:GetService("Players").LocalPlayer
-            local threeBoostTime = player:FindFirstChild("threeBoostTime")
-            if threeBoostTime and threeBoostTime:IsA("IntValue") then
-                threeBoostTime.Value = 9999999
 
-                local twoBoostTime = player:FindFirstChild("twoBoostTime")
-                if twoBoostTime and twoBoostTime:IsA("IntValue") then
-                    twoBoostTime.Value = 9999999
-                end
-            end
-        end)
+    if isOn then
+        connection = spawn(updateValues)
     else
         if connection then
-            connection:Disconnect()
-            connection = nil
+            connection = nil  
         end
     end
 end
-
 
 toggleButton.MouseButton1Click:Connect(toggle)
 
