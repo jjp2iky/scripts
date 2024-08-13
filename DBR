@@ -40,6 +40,9 @@ do
                         Title = "Confirm",
                         Callback = function()
                             game.ReplicatedStorage.RemoteEvents.RedeemCode:FireServer("UPDATE4")
+                            game.ReplicatedStorage.RemoteEvents.RedeemCode:FireServer("5KLIKES")
+                            game.ReplicatedStorage.RemoteEvents.RedeemCode:FireServer("4KLIKES")
+                            game.ReplicatedStorage.RemoteEvents.RedeemCode:FireServer("3KLIKES")
                             game.ReplicatedStorage.RemoteEvents.RedeemCode:FireServer("1KLIKES")
                             game.ReplicatedStorage.RemoteEvents.RedeemCode:FireServer("1KMEMBERS")
                             game.ReplicatedStorage.RemoteEvents.RedeemCode:FireServer("750LIKES")
@@ -49,6 +52,12 @@ do
                             game.ReplicatedStorage.RemoteEvents.RedeemCode:FireServer("10LIKES")
                             game.ReplicatedStorage.RemoteEvents.RedeemCode:FireServer("Monkey")
                             game.ReplicatedStorage.RemoteEvents.RedeemCode:FireServer("Release")
+                            game.ReplicatedStorage.RemoteEvents.RedeemCode:FireServer("UPDATE8")
+                            game.ReplicatedStorage.RemoteEvents.RedeemCode:FireServer("UPDATE7")
+                            game.ReplicatedStorage.RemoteEvents.RedeemCode:FireServer("UPDATE6")
+                            game.ReplicatedStorage.RemoteEvents.RedeemCode:FireServer("Release")
+                            game.ReplicatedStorage.RemoteEvents.RedeemCode:FireServer("Release")
+                            
                         end
                     },
                     {
