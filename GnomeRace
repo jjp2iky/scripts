@@ -10,7 +10,7 @@ local Section = Tab:AddSection({
 })
 
 Tab:AddButton({
-	Name = "Reedem all codes",
+	Name = "Use all codes",
 	Callback = function()
 		local codesFolder = game.ReplicatedStorage.Codes
 		local function activateCodes()
