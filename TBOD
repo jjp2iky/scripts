@@ -251,7 +251,7 @@ local function updateValues()
         local threeBoostTime = player:WaitForChild("threeBoostTime")
         twoBoostTime.Value = 555
         threeBoostTime.Value = 555
-        wait(1)
+        wait(0.4)
     end
 end
 
