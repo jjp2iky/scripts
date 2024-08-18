@@ -113,20 +113,20 @@ teleportPart.Touched:Connect(function(hit)
     end
 end)
 
-local part1 = workspace.Tycoon.Tycoons["Yellow Tycoon"].PurchasedFolder.Upgrader1.UpgradePart
-part1.Size = Vector3.new(9, 0.5, 9)
-part1.Position = Vector3.new(20, 50, 205)
-part1.Orientation = Vector3.new(0, 0, 0)
+local part111 = workspace.Tycoon.Tycoons["Yellow Tycoon"].PurchasedFolder.Upgrader1.UpgradePart
+part111.Size = Vector3.new(9, 0.5, 9)
+part111.Position = Vector3.new(20, 48, 205)
+part111.Orientation = Vector3.new(0, 0, 0)
 
-local part2= workspace.Tycoon.Tycoons["Yellow Tycoon"].PurchasedFolder.Upgrader2.UpgradePart
-part1.Size = Vector3.new(9, 0.5, 9)
-part1.Position = Vector3.new(20, 47, 205)
-part1.Orientation = Vector3.new(0, 0, 0)
+local part89= workspace.Tycoon.Tycoons["Yellow Tycoon"].PurchasedFolder.Upgrader2.UpgradePart
+part89.Size = Vector3.new(9, 0.5, 9)
+part89.Position = Vector3.new(20, 47, 205)
+part89.Orientation = Vector3.new(0, 0, 0)
 
-local part2= workspace.Tycoon.Tycoons["Yellow Tycoon"].PurchasedFolder.Upgrader3.UpgradePart
-part1.Size = Vector3.new(9, 0.5, 9)
-part1.Position = Vector3.new(20, 44, 205)
-part1.Orientation = Vector3.new(0, 0, 0)
+local part899= workspace.Tycoon.Tycoons["Yellow Tycoon"].PurchasedFolder.Upgrader3.UpgradePart
+part899.Size = Vector3.new(9, 0.5, 9)
+part899.Position = Vector3.new(20, 46, 205)
+part899.Orientation = Vector3.new(0, 0, 0)
 
 local teleportPart = Instance.new("Part")
 teleportPart.Size = Vector3.new(10, 0.5, 10) -- Размеры части
