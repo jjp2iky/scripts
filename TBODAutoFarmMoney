@@ -1,0 +1,176 @@
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+local Window = OrionLib:MakeWindow({Name = "TBOD money farm by JJP", HidePremium = false, SaveConfig = true, ConfigFolder = "OrionTest"})
+local Tab = Window:MakeTab({
+	Name = "Main",
+	PremiumOnly = false
+})
+local Section = Tab:AddSection({
+	Name = "Main"
+})
+Tab:AddButton({
+	Name = "Setup (press once)",
+	Callback = function()
+
+        local collectorPart = game.Workspace.Plots:GetChildren()[2].Items.Collector.Collector
+        collectorPart.Size = Vector3.new(7, 0.5, 7)
+        local part = Instance.new("Part")
+        local part1 = Instance.new("Part")
+
+        part.CFrame = CFrame.new(68.9996414, 14.3336544, 137.247314) * CFrame.fromEulerAnglesXYZ(0, 0, 0)
+        part.Size = Vector3.new(4, 1.2000000476837158, 2)
+        part.Anchored = true
+        part1.CFrame = CFrame.new(68.9996414, 14.3336544, 143.247314, 1, 0, 0, 0, 1, 0, 0, 0, 1) * CFrame.fromEulerAnglesXYZ(0, 0, 0)
+        part1.Size = Vector3.new(4, 2.200000047683716, 4)
+        part1.Anchored = true
+        part.Parent = workspace
+        part1.Parent = workspace
+
+        local function moveAndHideParts(model)
+            if model then
+                for _, child in pairs(model:GetChildren()) do
+                    if child:IsA("Part") then
+                        child.Position = child.Position - Vector3.new(0, 20, 0)
+                        
+                        child.Transparency = 1
+                        child.CanCollide = false
+                    end
+                end
+            else
+                print("Модель не найдена!")
+            end
+        end
+
+local mCollector = workspace.Plots:GetChildren()[2].Items["Mini Factory"]:FindFirstChild("MCollector")
+
+        local plot = game.Workspace.Plots:GetChildren()[2].Items
+
+        moveAndHideParts(plot.Blender)
+
+if mCollector then
+    mCollector.CFrame = CFrame.new(72.8994827, 4.84810162, 136.286606, 1, 0, 0, 0, 1, 0, 0, 0, 1)
+    
+    mCollector.Size = Vector3.new(2.5, 2.5, 2.5)
+end
+
+
+        moveAndHideParts(plot["Efficient Blenders"])
+
+        moveAndHideParts(plot["Scam The Buyers (Efficient Material Usage)"])
+
+        local targetCFrame = CFrame.new(68.9996414, 1.33365464, 143.247314)
+
+        local targetSize = Vector3.new(6.5, 6.5, 6.5)
+
+        local function moveAndResize(part)
+            if part then
+                part.CFrame = targetCFrame
+                
+                part.Size = targetSize
+            else
+                print("Парт не найден!")
+            end
+        end
+
+        moveAndResize(game.Workspace.Plots:GetChildren()[2].Items.Washifyer.Washer)
+
+        moveAndResize(game.Workspace.Plots:GetChildren()[2].Items.Sandifyer.Sander)
+
+        moveAndResize(game.Workspace.Plots:GetChildren()[2].Items.Polisher.TouchPart)
+
+        moveAndResize(game.Workspace.Plots:GetChildren()[2].Items["Metallic Injector"].TouchPart)
+
+        moveAndResize(game.Workspace.Plots:GetChildren()[2].Items.Electrifyer.Electric)
+
+        moveAndResize(game.Workspace.Plots:GetChildren()[2].Items["Particle Stabilizer"])
+
+        moveAndResize(game.Workspace.Plots:GetChildren()[2].Items["Mini Factory"].TouchPart)
+
+        moveAndResize(game.Workspace.Plots:GetChildren()[2].Items["GYM?"].TouchPart)
+
+        moveAndResize(game.Workspace.Plots:GetChildren()[2].Items["Limb Extruder"].TouchPart)
+
+        moveAndResize(game.Workspace.Plots:GetChildren()[2].Items["Limb Extruder"].Drop)
+
+        moveAndResize(game.Workspace.Plots:GetChildren()[2].Items["Life infuser"].TouchPart)
+
+        moveAndResize(game.Workspace.Plots:GetChildren()[2].Items.Cooler.Touch)
+
+        moveAndResize(game.Workspace.Plots:GetChildren()[2].Items["Hydraulic Press"].TouchPart)
+
+        moveAndResize(game.Workspace.Plots:GetChildren()[2].Items["Fiery Forge"].TouchPart)
+
+        moveAndResize(game.Workspace.Plots:GetChildren()[2].Items.Duster.TouchPart)
+
+        local collectorPart = game.Workspace.Plots:GetChildren()[2].Items.Collector.Collector
+
+        if collectorPart then
+            collectorPart.Position = collectorPart.Position + Vector3.new(20, 0, 0)
+        else
+            print("Объект Collector не найден!")
+        end
+
+  	end    
+})
+
+Tab:AddButton({
+	Name = "Collect blocks(after setup, press this)",
+	Callback = function()
+        local collectorPart = game.Workspace.Plots:GetChildren()[2].Items.Collector.Collector
+
+
+        local targetCFrame = CFrame.new(68.9996414, 1.33365464, 143.247314)
+
+        local function moveCollector()
+            if collectorPart then
+                collectorPart.CFrame = targetCFrame
+                
+                wait(3)
+                
+                if collectorPart then
+                    collectorPart.Position = collectorPart.Position + Vector3.new(20, 0, 0)
+                else
+                    print("Объект Collector не найден!")
+                end
+            else
+                print("Объект Collector не найден!")
+            end
+        end
+
+        moveCollector()
+  	end    
+})
+
+local autoCollectEnabled = false
+
+Tab:AddToggle({
+	Name = "Auto collect every 17 sec",
+	Default = false,
+	Callback = function(Value)
+		autoCollectEnabled = Value
+		while autoCollectEnabled do
+			local collectorPart = game.Workspace.Plots:GetChildren()[2].Items.Collector.Collector
+
+			local targetCFrame = CFrame.new(68.9996414, 1.33365464, 143.247314)
+
+			local function moveCollector()
+				if collectorPart then
+					collectorPart.CFrame = targetCFrame
+					
+					wait(3)
+					
+					if collectorPart then
+						collectorPart.Position = collectorPart.Position + Vector3.new(20, 0, 0)
+					else
+						print("Объект Collector не найден!")
+					end
+				else
+					print("Объект Collector не найден!")
+				end
+			end
+
+			moveCollector()
+
+			wait(17)
+		end
+	end    
+})
