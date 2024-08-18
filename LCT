@@ -146,7 +146,7 @@ end)
 
 local teleportPart = Instance.new("Part")
 teleportPart.Size = Vector3.new(2, 1, 40) -- Размеры части
-teleportPart.CFrame = CFrame.new(-25, 12, 268)
+teleportPart.CFrame = CFrame.new(-25, 10.05, 268)
 teleportPart.Anchored = true
 teleportPart.Transparency = 0.5
 teleportPart.Orientation = Vector3.new(180, 90, 0)
@@ -163,7 +163,7 @@ teleportPart.Touched:Connect(function(hit)
 end)
 
 local teleportPart = Instance.new("Part")
-teleportPart.Size = Vector3.new(10, 10, 8) -- Размеры части
+teleportPart.Size = Vector3.new(10, 9, 8) -- Размеры части
 teleportPart.CFrame = CFrame.new(2, 2, 205)
 teleportPart.Anchored = true
 teleportPart.Transparency = 0.5
@@ -181,7 +181,7 @@ end)
 
 local teleportPart = Instance.new("Part")
 teleportPart.Size = Vector3.new(2, 1, 1300) -- Размеры части
-teleportPart.CFrame = CFrame.new(-60, 12, 955)
+teleportPart.CFrame = CFrame.new(-60, 10.5, 955)
 teleportPart.Anchored = true
 teleportPart.Transparency = 0.5
 teleportPart.Name = ("teleportPart")
