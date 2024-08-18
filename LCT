@@ -145,8 +145,8 @@ teleportPart.Touched:Connect(function(hit)
 end)
 
 local teleportPart = Instance.new("Part")
-teleportPart.Size = Vector3.new(2, 1, 40) -- Размеры части
-teleportPart.CFrame = CFrame.new(-25, 10.05, 268)
+teleportPart.Size = Vector3.new(2, 1, 45) -- Размеры части
+teleportPart.CFrame = CFrame.new(-32, 10, 268)
 teleportPart.Anchored = true
 teleportPart.Transparency = 0.5
 teleportPart.Orientation = Vector3.new(180, 90, 0)
