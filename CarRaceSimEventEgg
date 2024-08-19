@@ -10,6 +10,7 @@ local Section = Tab:AddSection({
 	Name = "main"
 })
 
+local autoCraftAll = false
 local autoClickEnabled1 = false
 local pickupEnabled = false
 
@@ -46,3 +47,20 @@ Tab:AddToggle({
 	end    
 })
 
+local autoCraftEnable = false
+
+Tab:AddToggle({
+	Name = "Auto craft",
+	Default = false,
+	Callback = function(Value)
+		autoCraftEnable = Value
+		if autoCraftEnable then
+			spawn(function()
+				while autoCraftEnable do
+					game.ReplicatedStorage.Remotes.Pets.CraftAll:FireServer("")
+					wait(0.05) -- задержка между вызовами
+				end
+			end)
+		end
+	end    
+})
