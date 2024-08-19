@@ -39,8 +39,10 @@ Tab:AddToggle({
 				while autoClickEnabled do
 					game.ReplicatedStorage.Remotes.Event.OpenEgg:FireServer("")
 					wait(0.2)
+					game.ReplicatedStorage.Remotes.Eggs.CancelCooldown:FireServer("")
 				end
 			end)
 		end
 	end    
 })
+
